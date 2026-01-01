@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Offer {
+  id          String   @id @default(uuid())
+  externalId  String   @unique // ID from Driiveme if available, or hash of content
+  title       String
+  fromCity    String
+  toCity      String
+  vehicle     String
+  price       Float?
+  pickupDate  DateTime?
+  dropoffDate DateTime?
+  link        String
+  distance    Int?     // km
+  rawJson     String   // Store full payload just in case
+  
+  detectedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([fromCity, toCity])
+  @@index([detectedAt])
+}
+
+model Filter {
+  id        String   @id @default(uuid())
+  name      String
+  keywords  String?  // Comma separated
+  minPrice  Float?
+  maxPrice  Float?
+  
+  // Geo-fencing (Simplified as city names or lat/long center + radius later)
+  origin    String?
+  destination String?
+  
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
